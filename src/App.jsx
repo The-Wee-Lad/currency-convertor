@@ -19,9 +19,7 @@ function App() {
   const rates = useMemo(()=> data?.rates || {},[data?.rates]);
   function swap() {
     setFromCurrency(toCurrency);
-    setFromAmount(toAmount);
     setToCurrency(fromCurrency);
-    // setToAmount(fromAmount);
   }
   useEffect(() => {
     const interval = setInterval(() => {
@@ -37,13 +35,11 @@ function App() {
   useEffect(() => {
     if (!rates) return
     
-    let newValue = (rates?.[toCurrency] * fromAmount).toFixed(2);
     if ((source == "from" || source == "convert")) {
-      console.log(newValue);
-      setToAmount((rates?.[toCurrency] * fromAmount).toFixed(2));
+      setToAmount((rates?.[toCurrency] * fromAmount).toFixed(5));
     }
     else if (source == "to")
-      setFromAmount((toAmount / rates?.[toCurrency]).toFixed(2));
+      setFromAmount((toAmount / rates?.[toCurrency]).toFixed(5));
   }, [toAmount, fromAmount, fromCurrency, toCurrency, rates, source]);
 
   return (
