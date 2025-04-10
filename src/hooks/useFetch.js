@@ -17,5 +17,4 @@ function useFetch(currency, tryAgain, setTryAgain) {
     }, [currency, tryAgain, setTryAgain]);
     return data;
 }
-
 export default useFetch

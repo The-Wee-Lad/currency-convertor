@@ -40,5 +40,4 @@ function InputDivs({ type = "from", amount=1, onAmountChange, currency = "INR", 
 
     )
 }
-
 export default InputDivs

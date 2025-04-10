@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import InputDivs from './components/InputDivs.jsx';
 import useFetch from './hooks/useFetch.js';
 
-const URLs = ['2.jpg', '3.jpg', '4.jpg', '5.jpg', '2.jpg','1.jpg'];
+const URLs = ['2.jpg', '3.jpg', '4.jpg','6.jpg', '5.jpg', '2.jpg','1.jpg'];
 const changeTime = 10000, fadeTime = 500;
 
 function App() {
