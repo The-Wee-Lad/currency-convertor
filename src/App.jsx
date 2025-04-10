@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import InputDivs from './components/InputDivs.jsx';
 import useFetch from './hooks/useFetch.js';
 
-const URLs = ['2.jpg', '3.jpg', '4.jpg', '6.jpg', '5.jpg', '2.jpg', '1.jpg'];
+const URLs = ['2.jpg', '3.jpg', '4.jpg','6.jpg', '5.jpg', '2.jpg','1.jpg'];
 const changeTime = 10000, fadeTime = 500;
 
 function App() {
@@ -14,22 +13,16 @@ function App() {
   const [toCurrency, setToCurrency] = useState("INR");
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
-
-  const { data, fetchRates, isError } = useFetch(fromCurrency);
+  const [tryAgain, setTryAgain] = useState(false);
+  const data = useFetch(fromCurrency, tryAgain, setTryAgain);
   const lastUpdate = (new Date(data?.time_last_updated * 1000)).toLocaleString("en-IN");
-  const rates = useMemo(() => data?.rates || {}, [data?.rates]);
-
-  useEffect(() => {
-    fetchRates(fromCurrency)
-  }, [fromCurrency, fetchRates]);
-
+  const rates = useMemo(()=> data?.rates || {},[data?.rates]);
   function swap() {
-    setToAmount(fromAmount);
-    setFromAmount(toAmount);
     setFromCurrency(toCurrency);
+    setFromAmount(toAmount);
     setToCurrency(fromCurrency);
+    // setToAmount(fromAmount);
   }
-
   useEffect(() => {
     const interval = setInterval(() => {
       setFade(false);
@@ -42,17 +35,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-
-    if (!rates)
-      return;
-
+    if (!rates) return
+    
+    let newValue = (rates?.[toCurrency] * fromAmount).toFixed(2);
     if ((source == "from" || source == "convert")) {
-      console.log("from : ", (rates?.[toCurrency] * fromAmount).toFixed(2));
+      console.log(newValue);
+      setToAmount((rates?.[toCurrency] * fromAmount).toFixed(2));
     }
-    else if (source == "to") {
-      console.log(" to ", (rates?.[toCurrency] * fromAmount).toFixed(2));
+    else if (source == "to")
       setFromAmount((toAmount / rates?.[toCurrency]).toFixed(2));
-    }
   }, [toAmount, fromAmount, fromCurrency, toCurrency, rates, source]);
 
   return (
@@ -81,14 +72,10 @@ function App() {
             amount={fromAmount}
             currency={fromCurrency}
             options={rates}
-            onAmountChange={(amount) => {
-              setFromAmount(Number(amount) || '');
-              setToAmount((rates?.[toCurrency] * fromAmount).toFixed(2));
-            }}
+            onAmountChange={(amount) => { setFromAmount(Number(amount) || ''); setSource("from"); }}
             onCurrencyChange={(currency) => { setFromCurrency(currency); }}
           />
-          <button
-            className='
+          <button className='
           min-xl:text-2xl
           absolute flex flex-row 
           justify-center items-center text-lg
@@ -97,9 +84,7 @@ function App() {
           text-white
           focus:bg-blue-700/100
           transition-all duration-100 ease-in
-          rounded-xl border-black border-x-2 hover:border-2
-          disabled:bg-white/60
-          '
+          rounded-xl border-black border-x-2 hover:border-2'
             onClick={(e) => {
               setTimeout(() => {
                 e.target.blur();
@@ -113,15 +98,8 @@ function App() {
             type="to"
             amount={toAmount}
             currency={toCurrency}
-            onAmountChange={
-              (amount) => {
-                setToAmount(Number(amount) || '');
-                setFromAmount((toAmount / rates?.[toCurrency]).toFixed(2));
-              }}
-            onCurrencyChange={
-              (currency) => { setToCurrency(currency) }
-              
-            }
+            onAmountChange={(amount) => { setToAmount(Number(amount) || ''); setSource("to"); }}
+            onCurrencyChange={(currency) => { setToCurrency(currency) }}
             options={rates}
           />
         </div>
@@ -129,17 +107,15 @@ function App() {
             border-1
             hover:bg-black hover:text-white focus:text-white focus:bg-black
             transition-all duration-300 ease-in-out select-none'
-          style={{ backgroundColor: isError ? "Red" : '' }}
+          style={{ backgroundColor: tryAgain ? "Red" : '' }}
           onClick={(e) => {
             setTimeout(() => {
               e.target.blur();
-              if (isError)
-                fetchRates(fromCurrency);
-              else
-                setSource("convert");
+              setSource("convert");
+              setTryAgain(false);
             }, 300);
           }}
-        >{isError ? "API Failed Click Here To Try Again" : `Convert from ${fromCurrency} to ${toCurrency}`}</button>
+        >{tryAgain? "API Failed Click Here To Try Again" : `Convert from ${fromCurrency} to ${toCurrency}`}</button>
       </div>
 
     </div>
