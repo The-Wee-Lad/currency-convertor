@@ -5,7 +5,7 @@ import App from './App.jsx'
 import Preload from './Preload.jsx'
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
+  <StrictMode>
     <Preload />
-  //</StrictMode>
+  </StrictMode>
 )
