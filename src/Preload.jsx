@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import App from './App.jsx';
+import { lightArray, darkArray } from './assets/index.js';
 
-const allImages = [
-    ...['2.jpg', '3.jpg', '4.jpg', '5.jpg', '1.jpg'],
-    ...['7.jpg', '8.jpg', '9.jpg', '10.jpg', '11.jpg', '6.jpg']
-];
+const allImages = [...lightArray, ...darkArray];
 
 function Preload() {
     const [ready, setReady] = useState(false);
@@ -16,7 +14,7 @@ function Preload() {
                     (src) =>
                         new Promise((resolve) => {
                             const img = new Image();
-                            img.src = `/${src}`;
+                            img.src = src;
                             img.onload = () => resolve();
                             img.onerror = () => resolve();
                         })
@@ -30,7 +28,7 @@ function Preload() {
     if (!ready) {
         return (
             <div className="flex items-center justify-center h-screen w-screen bg-black text-white">
-                Pre Loading Assets...
+                Preloading Assets...
             </div>
         );
     }

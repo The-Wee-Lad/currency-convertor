@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import {lightArray, darkArray} from './assets/index.js' 
 import InputDivs from './components/InputDivs.jsx';
 import useFetch from './hooks/useFetch.js';
 
-const URLs = ['2.jpg', '3.jpg', '4.jpg', '5.jpg', '1.jpg'
-
-];
-const darkURLs = ['7.jpg', '8.jpg', '9.jpg', '10.jpg', '11.jpg', '6.jpg'];
-const changeTime = 15000, fadeTime = 500;
+const URLs = lightArray;
+const darkURLs = darkArray;
+const changeTime = 5000, fadeTime = 500;
 
 function App() {
   const [dark, setDark] = useState(false);
@@ -59,7 +58,7 @@ function App() {
         className={`fixed inset-0 -z-10 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'
           }`}
         style={{
-          backgroundImage: `url(/${(dark ? darkURLs[index] : URLs[index])})`,
+          backgroundImage: `url(${(dark ? darkURLs[index] : URLs[index])})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
