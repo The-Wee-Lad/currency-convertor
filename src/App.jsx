@@ -5,7 +5,7 @@ import useFetch from './hooks/useFetch.js';
 
 const URLs = lightArray;
 const darkURLs = darkArray;
-const changeTime = 5000, fadeTime = 500;
+const changeTime = 10000, fadeTime = 500;
 
 function App() {
   const [dark, setDark] = useState(false);
