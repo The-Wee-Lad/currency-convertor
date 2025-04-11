@@ -15,7 +15,7 @@ function InputDivs({ type = "from", amount=1, onAmountChange, currency = "INR", 
                     id={amountInputId}
                     value={amount}
                     placeholder="0"
-                    onChange={(e) => onAmountChange?.(Number(e.target.value))}
+                    onChange={(e) => onAmountChange?.(Number(e.target.value)||0)}
                     className="bg-white dark:bg-black/70 dark:text-white p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full"
                 />
             </div>

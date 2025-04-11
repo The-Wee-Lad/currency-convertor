@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {lightArray, darkArray} from './assets/index.js' 
+import { lightArray, darkArray } from './assets/index.js'
 import InputDivs from './components/InputDivs.jsx';
 import useFetch from './hooks/useFetch.js';
 
@@ -10,20 +10,20 @@ const changeTime = 10000, fadeTime = 500;
 function App() {
   const [dark, setDark] = useState(false);
   const [index, setIndex] = useState(Math.floor(Math.random() * URLs.length));
-  // const [prevIndex, setPrevIndex] = useState(index);
   const [fade, setFade] = useState(true);
+  const [retry, setRetry] = useState(false);
   const [source, setSource] = useState(null);
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("INR");
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
-  const [tryAgain, setTryAgain] = useState(false);
-  const data = useFetch(fromCurrency, tryAgain, setTryAgain);
+  const { data, fetchStatus } = useFetch(fromCurrency, retry);
   const lastUpdate = (new Date(data?.time_last_updated * 1000)).toLocaleString("en-IN");
   const rates = useMemo(() => data?.rates || {}, [data?.rates]);
   function swap() {
-    setFromCurrency(toCurrency);
+    setSource("from");
     setToCurrency(fromCurrency);
+    setFromCurrency(toCurrency);
   }
 
 
@@ -31,7 +31,7 @@ function App() {
     let t;
     const interval = setInterval(() => {
       setFade(false);
-      t =setTimeout(() => {
+      t = setTimeout(() => {
         const nextIndex = (index + 1) % (dark ? darkURLs.length : URLs.length);
         setIndex(nextIndex);
         setFade(true);
@@ -42,18 +42,29 @@ function App() {
   }, [index, dark]);
 
   useEffect(() => {
-    if (!rates) return
-
-    if ((source == "from" || source == "convert")) {
+    console.log(rates);
+    
+    if (!rates?.[fromCurrency]){
+      console.log("No Rates");
+      return
+    }
+    else if ((source == "from" || source == "convert")) {
+      console.log("from");
       setToAmount((rates?.[toCurrency] * fromAmount).toFixed(5));
     }
-    else if (source == "to")
+    else if (source == "to") {
+      console.log("to");
       setFromAmount((toAmount / rates?.[toCurrency]).toFixed(5));
+    }
+    else if(source == "currency"){
+      console.log("currency");
+      setToAmount((rates?.[toCurrency] * fromAmount).toFixed(5));
+    }
   }, [toAmount, fromAmount, fromCurrency, toCurrency, rates, source]);
 
   return (
     <div data-theme={dark ? "dark" : ''} className="h-screen w-screen relative overflow-x-auto">
-      <div className={`fixed inset-0 dark:bg-black/90 bg-blue-200/50  -z-20 transition-opacity duration-1000`}/>
+      <div className={`fixed inset-0 dark:bg-black/90 bg-blue-200/50  -z-20 transition-opacity duration-1000`} />
       <div
         className={`fixed inset-0 -z-10 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'
           }`}
@@ -89,7 +100,7 @@ function App() {
             currency={fromCurrency}
             options={rates}
             onAmountChange={(amount) => { setFromAmount(Number(amount) || ''); setSource("from"); }}
-            onCurrencyChange={(currency) => { setFromCurrency(currency); }}
+            onCurrencyChange={(currency) => { setFromCurrency(currency); setSource("currency"); }}
           />
           <button
             className='
@@ -124,10 +135,10 @@ function App() {
 
           <InputDivs
             type="to"
-            amount={toAmount}
+            amount={fetchStatus=="Fetching"?0:(toAmount)}
             currency={toCurrency}
             onAmountChange={(amount) => { setToAmount(Number(amount) || ''); setSource("to"); }}
-            onCurrencyChange={(currency) => { setToCurrency(currency) }}
+            onCurrencyChange={(currency) => { setToCurrency(currency); setSource("currency"); }}
             options={rates}
           />
         </div>
@@ -141,16 +152,34 @@ function App() {
             dark:hover:text-black
             dark:focus:bg-white
             dark:focus:text-black
+            whitespace-pre-line
             '
-          style={{ backgroundColor: tryAgain ? "Red" : '' }}
+          style={{ backgroundColor: fetchStatus == "Error" ? "Red" : '' }}
           onClick={(e) => {
             setTimeout(() => {
               e.target.blur();
-              setSource("convert");
-              setTryAgain(false);
+              if (fetchStatus != "Error")
+                setSource("convert");
+              else {
+                console.log(123);
+                setRetry(prev => !prev);
+              }
             }, 300);
           }}
-        >{tryAgain ? "API Failed Click Here To Try Again" : `Convert from ${fromCurrency} to ${toCurrency}`}</button>
+        >
+          {fetchStatus === "Fetching" ? (
+            <span className="animate-ping">Fetching...</span>
+          ) : fetchStatus === "Error" ? (
+            <span className="text-red-200 underline">API Failed. Click Here To Try Again</span>
+          ) : (
+            <div className="text-left">
+              <h1 className="text-xl font-semibold mb-1 text-center">Conversion</h1>
+              <p className="text-base">
+                {rates[fromCurrency]} {fromCurrency} = {rates[toCurrency]} {toCurrency}
+              </p>
+            </div>
+          )}
+        </button>
       </div>
 
     </div>
