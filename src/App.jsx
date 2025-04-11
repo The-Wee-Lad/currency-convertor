@@ -11,13 +11,13 @@ function App() {
   const [dark, setDark] = useState(false);
   const [index, setIndex] = useState(Math.floor(Math.random() * URLs.length));
   const [fade, setFade] = useState(true);
-  const [retry, setRetry] = useState(false);
+  // const [retry, setRetry] = useState(false);
   const [source, setSource] = useState(null);
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("INR");
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
-  const { data, fetchStatus } = useFetch(fromCurrency, retry);
+  const { data, fetchStatus, reFetch } = useFetch(fromCurrency);
   const lastUpdate = (new Date(data?.time_last_updated * 1000)).toLocaleString("en-IN");
   const rates = useMemo(() => data?.rates || {}, [data?.rates]);
   function swap() {
@@ -162,7 +162,7 @@ function App() {
                 setSource("convert");
               else {
                 console.log(123);
-                setRetry(prev => !prev);
+                reFetch();
               }
             }, 300);
           }}

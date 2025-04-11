@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const debouncingRate = 300;
-function useFetch(currency,retry) {
+function useFetch(currency) {
     const [data, setData] = useState({})
     const [fetchStatus, setFetchStatus] = useState("Fetching");
-    // const [fetchStatus, setFetchStatus] = useState("Fetching")
+    const [retry, setRetry] = useState(false);
+
+    const reFetch = useCallback(()=>{setRetry(prev=>!prev);},[]);
+
     useEffect(() => {
         setFetchStatus("Fetching");
         const debouncer = setTimeout(() => {
-            console.log("fetching,",currency);
+            console.log("fetching : ",currency);
             fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`)
                     .then((response => {
                         console.log("response", response.status);
@@ -25,6 +28,6 @@ function useFetch(currency,retry) {
         }, debouncingRate);
         return () => { clearTimeout(debouncer) }
     }, [currency,retry]);
-    return { data, fetchStatus, setFetchStatus };
+    return { data, fetchStatus, reFetch};
 }
 export default useFetch
